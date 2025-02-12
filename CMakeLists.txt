@@ -65,6 +65,6 @@ add_subdirectory(lib/BMI055)
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
-
+    BMI055
     # Add user defined libraries
 )
