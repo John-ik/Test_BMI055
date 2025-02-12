@@ -80,7 +80,7 @@ void deactivate_gyr (){
 
 BMI_Error spi_write (uint8_t addr, const uint8_t data){
     uint8_t p_data[2];
-    p_data[0] = bit_clear(addr, READWRITE_BIT);
+    p_data[0] = bit_clear(addr, READWRITE_BIT); // write cmd
     p_data[1] = data;
     HAL_StatusTypeDef s;
     if((s = HAL_SPI_Transmit(&BMI_SPI, p_data, 2, SPI_TIMEOUT)))
@@ -94,7 +94,7 @@ BMI_Error spi_read (uint8_t addr, uint8_t* p_data, uint8_t size){
 
     if (size > 6) return error(BMI_ERROR_multiple_read_overflow);
 
-    bit_set(addr, READWRITE_BIT);
+    bit_set(addr, READWRITE_BIT); // read cmd
     tx_buf[0] = addr;
     for (size_t i = 1; i < 7; i++) tx_buf[i] = 0;
 
