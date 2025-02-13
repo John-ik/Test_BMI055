@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "BMI055.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +46,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint8_t uart_buf[64];
+uint16_t gyro[3];
+uint16_t accel[3];
+float *temp;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,6 +95,20 @@ int main(void)
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  if(BMI_init())
+  {
+    sprintf(&uart_buf, "BMI Error: %d\n", BMI_get_error());
+    HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
+    while(1){}
+  }
+
+  // set resolution
+  BMI_set_acc_range(A_RANGE_2G);
+  BMI_set_gyr_range(G_RANGE_125DPS);
+
+  // set filter
+  BMI_set_acc_bw(A_BANDWITH_7_81Hz);
+  BMI_set_gyr_bw(G_BANDWIDTH_116Hz)
 
   /* USER CODE END 2 */
 
@@ -99,10 +117,22 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    BMI_get_raw_acc(accel);
+    BMI_get_raw_gyr(gyro);
+    BMI_get_C_temp(temp);
 
+    sprintf(uart_buf, "ACC: %d %d %d GYRO: %d %d %d TEMP: %d", 
+      accel[0], accel[1], accel[2],
+      gyro[0], gyro[1], gyro[2],
+      (int) temp
+    );
+    HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
+
+    HAL_Delay(64);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
+  return;
 }
 
 /**
