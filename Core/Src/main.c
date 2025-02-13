@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "BMI055.h"
 #include "string.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,8 +48,8 @@
 
 /* USER CODE BEGIN PV */
 uint8_t uart_buf[64];
-uint16_t gyro[3];
-uint16_t accel[3];
+int16_t gyro[3];
+int16_t accel[3];
 float *temp;
 /* USER CODE END PV */
 
@@ -108,7 +109,7 @@ int main(void)
 
   // set filter
   BMI_set_acc_bw(A_BANDWITH_7_81Hz);
-  BMI_set_gyr_bw(G_BANDWIDTH_116Hz)
+  BMI_set_gyr_bw(G_BANDWIDTH_116Hz);
 
   /* USER CODE END 2 */
 
@@ -132,7 +133,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-  return;
 }
 
 /**
