@@ -118,6 +118,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */
     BMI_get_raw_acc(accel);
     BMI_get_raw_gyr(gyro);
     BMI_get_C_temp(temp);
@@ -130,7 +131,6 @@ int main(void)
     HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
 
     HAL_Delay(64);
-    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
