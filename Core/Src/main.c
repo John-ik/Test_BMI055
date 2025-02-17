@@ -108,8 +108,8 @@ int main(void)
   BMI_set_gyr_range(G_RANGE_125DPS);
 
   // set filter
-  BMI_set_acc_bw(A_BANDWITH_7_81Hz);
-  BMI_set_gyr_bw(G_BANDWIDTH_116Hz);
+  // BMI_set_acc_bw(A_BANDWITH_1000Hz);
+  // BMI_set_gyr_bw(G_BANDWIDTH_116Hz);
 
   /* USER CODE END 2 */
 
@@ -118,16 +118,21 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
+    float acc_m[3], gyro_dps[3];
+    
     BMI_get_raw_acc(accel);
     BMI_get_raw_gyr(gyro);
-    BMI_get_C_temp(temp);
 
-    sprintf(uart_buf, "ACC: %d %d %d GYRO: %d %d %d TEMP: %d", 
-      accel[0], accel[1], accel[2],
-      gyro[0], gyro[1], gyro[2],
-      (int) temp
+    BMI_acc_to_metric(accel, acc_m);
+    BMI_gyr_to_dps(gyro, gyro_dps);
+
+    sprintf(uart_buf, "ACC: %f %f %f GYRO: %f %f %f\n", 
+      acc_m[0], acc_m[1], acc_m[2],
+      gyro_dps[0], gyro_dps[1], gyro_dps[2]
     );
+    
     HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
 
     HAL_Delay(64);
