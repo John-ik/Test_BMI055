@@ -174,9 +174,17 @@ void BMI_get_C_temp (float *p_c_temp){
 void BMI_get_raw_acc (int16_t *p_acc){
     BMI_acc_read(A_REG_ACCD_X_LSB, buf, 6);
 
-    p_acc[0] = ((int16_t) buf[1] << 4) | (buf[0] >> 4);
-    p_acc[1] = ((int16_t) buf[3] << 4) | (buf[2] >> 4);
-    p_acc[2] = ((int16_t) buf[5] << 4) | (buf[4] >> 4);
+    // 12 bit twos complement value to 16 bit
+    p_acc[0] = ((int16_t) buf[1] << 4 ) | (buf[0] >> 4);
+    if (p_acc[0] & 0x0800) // if negative
+        p_acc[0] |= 0xF000; 
+    p_acc[1] = ((int16_t) buf[3] << 4 ) | (buf[2] >> 4);
+    if (p_acc[1] & 0x0800) // if negative
+        p_acc[1] |= 0xF000; 
+    p_acc[2] = ((int16_t) buf[5] << 4 ) | (buf[4] >> 4);
+    if (p_acc[2] & 0x0800) // if negative
+        p_acc[2] |= 0xF000; 
+
 }
 
 void BMI_acc_to_metric(int16_t *p_raw_acc, float* p_metric_acc){
