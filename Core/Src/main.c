@@ -47,7 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t uart_buf[64];
+uint8_t uart_buf[256];
 int16_t gyro[3];
 int16_t accel[3];
 float *temp;
@@ -61,7 +61,9 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+  BMI_acc_int_callback(GPIO_Pin);
+}
 /* USER CODE END 0 */
 
 /**
@@ -111,6 +113,26 @@ int main(void)
   // BMI_set_acc_bw(A_BANDWITH_1000Hz);
   // BMI_set_gyr_bw(G_BANDWIDTH_116Hz);
 
+  // enable int on motion
+  BMI_ACC_Interrupt_En acc_int_ens;
+  acc_int_ens.slope_en_z = 1;
+
+  A_INT_Latch acc_int_latch = A_INT_LATCH_latched;
+  
+  BMI_ACC_Interrupt_Map acc_int_map;
+  acc_int_map.int1_slope = 1;
+
+  BMI_ACC_Interrupt_Out_Ctrl acc_int_out_ctrl;
+  acc_int_out_ctrl.int1_odd = 0; // 0 - push-pull
+  acc_int_out_ctrl.int1_lvl = 1; // 1 - active high
+
+  BMI_acc_int_set_out_ctrl(acc_int_out_ctrl);
+  BMI_acc_int_set_map(acc_int_map);
+  BMI_acc_int_set_latch(acc_int_latch);
+  BMI_acc_int_set_en(acc_int_ens);
+
+  BMI_ACC_Int_status acc_int_status = {0};
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,22 +142,29 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    float acc_m[3], gyro_dps[3];
-    
-    BMI_get_raw_acc(accel);
-    BMI_get_raw_gyr(gyro);
+    if (BMI_acc_int_get_state() == BMI_INT_1) {
+      float acc_m[3], gyro_dps[3];
+      
+      BMI_get_raw_acc(accel);
+      BMI_get_raw_gyr(gyro);
 
-    BMI_acc_to_metric(accel, acc_m);
-    BMI_gyr_to_dps(gyro, gyro_dps);
-
-    sprintf(uart_buf, "ACC: %f %f %f GYRO: %f %f %f\n", 
-      acc_m[0], acc_m[1], acc_m[2],
-      gyro_dps[0], gyro_dps[1], gyro_dps[2]
-    );
-    
-    HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
-
-    HAL_Delay(64);
+      acc_int_status = BMI_acc_int_get_statuses();
+  
+      BMI_acc_to_metric(accel, acc_m);
+      BMI_gyr_to_dps(gyro, gyro_dps);
+  
+      sprintf(uart_buf, "STATUS: %X ACC: %f %f %f GYRO: %f %f %f\n", 
+        (acc_int_status.b_0 << 24) | (acc_int_status.b_1 << 16) | (acc_int_status.b_2 << 8) | (acc_int_status.b_3),
+        acc_m[0], acc_m[1], acc_m[2],
+        gyro_dps[0], gyro_dps[1], gyro_dps[2]
+      );
+      
+      HAL_UART_Transmit(&huart1, uart_buf, strlen(uart_buf), 100);
+  
+      BMI_acc_int_latch_clear();
+      BMI_acc_int_reset_state();
+      HAL_Delay(50);
+    }
   }
   /* USER CODE END 3 */
 }

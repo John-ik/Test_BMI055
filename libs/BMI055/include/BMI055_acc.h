@@ -68,8 +68,163 @@
 
 // -------------------- REG BITFIELDS --------------------
 
+typedef struct {
+    union {
+        struct {
+            unsigned low_int : 1;
+            unsigned high_int : 1;
+            unsigned slope_int : 1;
+            unsigned slo_no_mot_int : 1;
+            unsigned d_tap_int : 1;
+            unsigned s_tap_int : 1;
+            unsigned orient_int : 1;
+            unsigned flat_int : 1;
+        };
+        uint8_t b_0;
+    };
+    union {
+        struct {
+            unsigned reserved1 : 5;
+            unsigned fifo_full_int : 1;
+            unsigned fifo_wm_int : 1;
+            unsigned data_int : 1;
+        };
+        uint8_t b_1;
+    };
+    union {
+        struct {
+            unsigned slope_first_x : 1;
+            unsigned slope_first_y : 1;
+            unsigned slope_first_z : 1;
+            unsigned slope_sign : 1;
+            unsigned tap_first_x : 1;
+            unsigned tap_first_y : 1;
+            unsigned tap_first_z : 1;
+            unsigned tap_sign : 1;
+        };
+        uint8_t b_2;
+    };
+    union {
+        struct {
+            unsigned high_first_x : 1;
+            unsigned high_first_y : 1;
+            unsigned high_first_z : 1;
+            unsigned high_sign : 1;
+            unsigned orient : 2;
+            unsigned orient_z : 1;
+            unsigned flat : 1;
+        };
+        uint8_t b_3;
+    };
+} BMI_ACC_Int_status;
 
+typedef struct {
+    union {
+        struct {
+            unsigned slope_en_x : 1;
+            unsigned slope_en_y : 1;
+            unsigned slope_en_z : 1;
+            unsigned reserved_0 : 1;
+            unsigned d_tap_en : 1;
+            unsigned s_tap_en : 1;
+            unsigned orient_en : 1;
+            unsigned flat_en : 1;
+        };
+        uint8_t b_0;
+    };
+    union {
+        struct {
+            unsigned high_en_x : 1;
+            unsigned high_en_y : 1;
+            unsigned high_en_z : 1;
+            unsigned low_en : 1;
+            unsigned data_en : 1;
+            unsigned int_ffull_en : 1;
+            unsigned int_fwm_en : 1;
+            unsigned reserved_1 : 1;
+        };
+        uint8_t b_1;
+    };
+    union {
+        struct {
+            unsigned slo_no_mot_en_x : 1;
+            unsigned slo_no_mot_en_y : 1;
+            unsigned slo_no_mot_en_z : 1;
+            unsigned slo_no_mot_sel : 1;
+            unsigned reserved_2 : 4;
+        };
+        uint8_t b_2;
+    };
+} BMI_ACC_Interrupt_En;
 
+typedef struct {
+    union {
+        struct {
+            unsigned int1_low : 1;
+            unsigned int1_high : 1;
+            unsigned int1_slope : 1;
+            unsigned int1_slo_no_mot : 1;
+            unsigned int1_d_tap : 1;
+            unsigned int1_s_tap : 1;
+            unsigned int1_orient : 1;
+            unsigned int1_flat : 1;
+        };
+        uint8_t b_0;
+    };
+    union {
+        struct {
+            unsigned int1_fdata : 1;
+            unsigned int1_fwm : 1;
+            unsigned int1_ffull : 1;
+            unsigned reserved_1 : 2;
+            unsigned int2_ffull : 1;
+            unsigned int2_fwm : 1;
+            unsigned int2_data : 1;
+        };
+        uint8_t b_1;
+    };
+    union {
+        struct {
+            unsigned int2_low : 1;
+            unsigned int2_high : 1;
+            unsigned int2_slope : 1;
+            unsigned int2_slo_no_mot : 1;
+            unsigned int2_d_tap : 1;
+            unsigned int2_s_tap : 1;
+            unsigned int2_orient : 1;
+            unsigned int2_flat : 1;
+        };
+        uint8_t b_2;
+    };
+} BMI_ACC_Interrupt_Map;
+
+typedef struct {
+    union {
+        struct {
+            unsigned src_low : 1;       // '0' - filtered. '1' - unfiltered
+            unsigned src_high : 1;      // '0' - filtered. '1' - unfiltered
+            unsigned src_slope : 1;     // '0' - filtered. '1' - unfiltered
+            unsigned src_slo_no_mot : 1;// '0' - filtered. '1' - unfiltered
+            unsigned src_tap : 1;       // '0' - filtered. '1' - unfiltered
+            unsigned src_data : 1;      // '0' - filtered. '1' - unfiltered
+            unsigned reserved : 2;
+        };
+        uint8_t b;
+    };
+} BMI_ACC_Interrupt_Src; 
+
+typedef struct {
+    union {
+        struct {
+            unsigned int1_lvl : 1; // '0' - active low. '1' - active high
+            unsigned int1_odd : 1; // '0' - push-pull. '1' - open-drain
+            unsigned int2_lvl : 1; // '0' - active low. '1' - active high
+            unsigned int2_odd : 1; // '0' - push-pull. '1' - open-drain
+            unsigned reserved : 4;
+        };
+        uint8_t b;
+    };
+} BMI_ACC_Interrupt_Out_Ctrl;
 
 // -------------------- ENUMS --------------------
 
@@ -123,6 +278,27 @@ typedef enum {
     A_SLEEP_DUR_500ms,
     A_SLEEP_DUR_1s,
 } A_Sleep_Dur;
+
+
+typedef enum {
+    A_INT_LATCH_RESET = 0x80,
+    A_INT_LATCH_non_latched = 0x0,
+    A_INT_LATCH_250ms,
+    A_INT_LATCH_500ms,
+    A_INT_LATCH_1s,
+    A_INT_LATCH_2s,
+    A_INT_LATCH_4s,
+    A_INT_LATCH_8s,
+    A_INT_LATCH_latched,
+    A_INT_LATCH_non_latched2,
+    A_INT_LATCH_250us,
+    A_INT_LATCH_500us,
+    A_INT_LATCH_1ms,
+    A_INT_LATCH_12_5ms,
+    A_INT_LATCH_25ms,
+    A_INT_LATCH_50ms,
+    A_INT_LATCH_latched2
+} A_INT_Latch;
 
 
 typedef enum {

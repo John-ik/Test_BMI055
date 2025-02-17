@@ -39,6 +39,8 @@
 static uint8_t activated = 0;
 static BMI_Error error_code = 0;
 
+static BMI_Int_State acc_int_state = 0, gyr_int_state = 0;
+
 static uint8_t buf[6];
 
 struct {
@@ -131,6 +133,104 @@ void BMI_reset (){
     BMI_gyr_write(G_REG_BGW_SOFTRESET, G_SOFTRESET);
     HAL_Delay(30);
 }
+
+// -------------------- INTERRUPT --------------------
+
+void BMI_acc_int_set_en (BMI_ACC_Interrupt_En int_ens){
+    BMI_acc_write(A_REG_INT_EN_0, int_ens.b_0);
+    BMI_acc_write(A_REG_INT_EN_1, int_ens.b_1);
+    BMI_acc_write(A_REG_INT_EN_2, int_ens.b_2);
+}
+
+void BMI_acc_int_reset_en (){
+    BMI_acc_write(A_REG_INT_EN_0, 0);
+    BMI_acc_write(A_REG_INT_EN_1, 0);
+    BMI_acc_write(A_REG_INT_EN_2, 0);
+
+    HAL_Delay(10);
+}
+
+BMI_ACC_Interrupt_En BMI_acc_int_read_en (){
+    BMI_ACC_Interrupt_En int_ens;
+    
+    BMI_acc_read(A_REG_INT_EN_0, buf, 3);
+    
+    int_ens.b_0 = buf[0];
+    int_ens.b_1 = buf[1];
+    int_ens.b_2 = buf[2];
+
+    return int_ens;
+}
+
+void BMI_acc_int_set_map (BMI_ACC_Interrupt_Map int_maps){
+    BMI_ACC_Interrupt_En int_ens = BMI_acc_int_read_en();
+    BMI_acc_int_reset_en();
+
+    BMI_acc_write(A_REG_INT_MAP_0, int_maps.b_0);
+    BMI_acc_write(A_REG_INT_MAP_1, int_maps.b_1);
+    BMI_acc_write(A_REG_INT_MAP_2, int_maps.b_2);
+
+    BMI_acc_int_set_en(int_ens);
+}
+
+void BMI_acc_int_set_src (BMI_ACC_Interrupt_Src int_src) {
+    BMI_ACC_Interrupt_En int_ens = BMI_acc_int_read_en();
+    BMI_acc_int_reset_en();
+
+    BMI_acc_write(A_REG_INT_SRC, int_src.b);
+
+    BMI_acc_int_set_en(int_ens);
+}
+
+void BMI_acc_int_set_out_ctrl (BMI_ACC_Interrupt_Out_Ctrl int_out_ctrl) {
+    BMI_ACC_Interrupt_En int_ens = BMI_acc_int_read_en();
+    BMI_acc_int_set_en(int_ens);
+
+    BMI_acc_write(A_REG_INT_OUT_CTRL, int_out_ctrl.b);
+
+    BMI_acc_int_reset_en();
+}
+
+void BMI_acc_int_set_latch (A_INT_Latch int_latch) {
+    BMI_ACC_Interrupt_En int_ens = BMI_acc_int_read_en();
+    BMI_acc_int_set_en(int_ens);
+
+    BMI_acc_write(A_REG_INT_RST_LATCH, int_latch);
+
+    BMI_acc_int_reset_en();
+}
+
+void BMI_acc_int_latch_clear () {
+    BMI_acc_write(A_REG_INT_RST_LATCH, A_INT_LATCH_RESET);
+}
+
+void BMI_acc_int_callback (uint16_t GPIO_Pin) {
+    if (GPIO_Pin & BMI_ACC_INT_1_Pin)
+        acc_int_state = BMI_INT_1;
+    if (GPIO_Pin & BMI_ACC_INT_2_Pin)
+        acc_int_state = BMI_INT_2;
+}
+
+BMI_Int_State BMI_acc_int_get_state () {
+    return acc_int_state;
+}
+
+void BMI_acc_int_reset_state () {
+    acc_int_state = BMI_INT_no;
+}
+
+BMI_ACC_Int_status BMI_acc_int_get_statuses () {
+    BMI_ACC_Int_status status = {0};
+    BMI_acc_read(A_REG_INT_STATUS_0, &status.b_0, 1);
+    BMI_acc_read(A_REG_INT_STATUS_1, &status.b_1, 1);
+    BMI_acc_read(A_REG_INT_STATUS_2, &status.b_2, 1);
+    BMI_acc_read(A_REG_INT_STATUS_3, &status.b_3, 1);
+
+    return status;
+}
+
+
+
 
 // -------------------- SETTER --------------------
 

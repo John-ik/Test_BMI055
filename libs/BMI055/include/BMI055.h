@@ -27,6 +27,38 @@ BMI_Error BMI_get_error ();
 BMI_Error BMI_init();
 void BMI_reset();
 
+// -------------------- INTERRUPT --------------------
+
+typedef enum {
+    BMI_INT_no = 0,
+    BMI_INT_1,
+    BMI_INT_2
+} BMI_Int_State;
+
+void BMI_acc_int_set_en (BMI_ACC_Interrupt_En int_ens);
+
+void BMI_acc_int_reset_en ();
+
+BMI_ACC_Interrupt_En BMI_acc_int_read_en ();
+
+void BMI_acc_int_set_map (BMI_ACC_Interrupt_Map int_maps);
+
+void BMI_acc_int_set_src (BMI_ACC_Interrupt_Src int_src);
+
+void BMI_acc_int_set_out_ctrl (BMI_ACC_Interrupt_Out_Ctrl int_out_ctrl);
+
+void BMI_acc_int_set_latch (A_INT_Latch int_latch);
+
+void BMI_acc_int_latch_clear ();
+
+void BMI_acc_int_callback (uint16_t GPIO_Pin);
+
+BMI_Int_State BMI_acc_int_get_state ();
+
+void BMI_acc_int_reset_state ();
+
+BMI_ACC_Int_status BMI_acc_int_get_statuses ();
+
 // -------------------- SETTER --------------------
 
 void BMI_set_acc_range (A_Range a_range);
